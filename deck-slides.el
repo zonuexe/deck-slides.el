@@ -42,7 +42,8 @@
 
 (defvar-local deck-slides-layout-names nil)
 
-(defconst deck-slides-sparator "\n---\n")
+(eval-and-compile
+  (defconst deck-slides-separator "\n---\n"))
 
 ;; Utility functions
 (defun deck-slides--command-line (&rest args)
@@ -63,17 +64,22 @@
 
 (defun deck-slides--get-current-page ()
   "."
-  (let ((current-position (point))
-        (page 0))
+  (save-match-data
     (save-mark-and-excursion
       (save-restriction
-        (save-match-data
-          (widen)
+        (widen)
+        (when (search-forward (eval-when-compile deck-slides-separator) nil t)
+          (goto-char (match-end 0)))
+        (let ((current-position (point))
+              (page 0)
+              (buffer-end-position (point-max)))
           (goto-char (point-min))
           (while (and (< (point) current-position)
-                      (search-forward deck-slides-sparator nil t))
-            (setq page (1+ page))))))
-    page))
+                      (not (eq (point) buffer-end-position))
+                      (re-search-forward (eval-when-compile (rx-to-string `(or ,deck-slides-separator buffer-end)))
+                                         nil t))
+            (setq page (1+ page)))
+          page)))))
 
 ;; Commands
 (defun deck-slides-apply (id)
