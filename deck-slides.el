@@ -27,6 +27,7 @@
 ;; Interface to https://github.com/k1LoW/deck
 
 ;;; Code:
+(require 'xdg)
 
 (defvar deck-slides-lighter " deck")
 
@@ -106,6 +107,12 @@ When FORCE-UPDATE is non-NIL, the cache is refreshed."
   (when (or force-update (null deck-slides-layout-names))
     (setq deck-slides-layout-names (deck-slides--fetch-ls-layous id)))
   (message "layout-names: %S" deck-slides-layout-names))
+
+;;;###autoload
+(defun deck-slides-find-credentials-json ()
+  "Find deck `credentials.json' file."
+  (interactive)
+  (find-file (expand-file-name "deck/credentials.json" (xdg-data-home))))
 
 
 ;; Minor mode
