@@ -65,7 +65,8 @@ If not set, prompt the user and store it."
 
 (defun deck-slides--fetch-ls-layous (id)
   "Fetch layout names for the given slide ID using the deck command."
-  (split-string (string-trim-right (shell-command-to-string (deck-slides--command-line "ls-layouts" id)))))
+  (save-match-data
+    (split-string (string-trim-right (shell-command-to-string (deck-slides--command-line "ls-layouts" id))))))
 
 (defun deck-slides--get-current-page ()
   "Fetch layout names for the given slide ID using the deck command."
