@@ -55,11 +55,27 @@
   (mapconcat #'shell-quote-argument (cons deck-slides-executable args) " "))
 
 ;; Internal functions
+(defconst deck-slides--presentation-url-pattern
+  (eval-when-compile
+    (rx "https://docs.google.com/presentation/"
+        (? "u/" (in "0-9") "/")
+        "d/"
+        (group (+ (not "/"))))))
+
+(defconst deck-slides--presentation-id-pattern
+  (eval-when-compile
+    (rx bos (+ (in "a-zA-Z0-9-_")) eos)))
+
 (defun deck-slides-current-buffer-id-and-register ()
   "Get the Google Slides ID for the current buffer.
 If not set, prompt the user and store it."
   (unless deck-slides-id
-    (let ((new-id (read-string "Input Google slides ID: ")))
+    (let ((new-id (read-string "Input Google Slides presentation ID or URL: ")))
+      (save-match-data
+        (when (string-match deck-slides--presentation-url-pattern new-id)
+          (setq new-id (match-string-no-properties 1 new-id))))
+      (unless (string-match-p deck-slides--presentation-id-pattern new-id)
+        (user-error "Invalid presentation ID"))
       (setq deck-slides-id new-id)))
   deck-slides-id)
 
