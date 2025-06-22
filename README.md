@@ -2,6 +2,28 @@
 
 Emacs integration of [k1LoW/deck] command.
 
+## Usage
+
+### Edit Credentials File
+
+To use the `deck` command, you need to set up your own developer project from the Google Cloud console and save it as `credentials.json`. You can visit this file from Emacs using `M-x deck-slides-find-credentials-json`.
+
+### Apply Markdown to Google Slides
+
+Open the Markdown file you want to apply as slides and run `M-x deck-slides-apply` or `M-x deck-slides-apply-watch`. When running for the first time, it's recommended to verify that `deck apply` works correctly in the terminal first.
+
+> [!TIP]
+> Slide pages must be separated by `---` on independent lines. Other symbols or characters of different lengths are not recognized as page separators.
+
+The watch command process runs in the `*compilation*` buffer. To stop watching, kill the `*compilation*` buffer.
+
+### Check Slide Layout Names
+
+Run `M-x deck-slides-ls-layouts` to list the layout names of slides corresponding to the file you're editing.
+
+> [!TIP]
+> The results of this command are cached as buffer-local variables. The cache is discarded when you run `C-u M-x deck-slides-ls-layouts` or kill the buffer.
+
 ## Configuration
 
 ### Cache File
