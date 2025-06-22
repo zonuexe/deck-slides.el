@@ -43,6 +43,12 @@
   "File to cache Google Slides IDs associated with Markdown files."
   :type '(choice file (const :tag "No cache" nil)))
 
+(defcustom deck-slides-code-block-to-image-command nil
+  "Command strings and expression language for converting code blocks into images.
+See https://github.com/k1LoW/deck?tab=readme-ov-file#code-blocks-to-images."
+  :type '(choice string (const :tag "" nil))
+  :safe (lambda (v) (or (null v) (stringp v))))
+
 (defvar-local deck-slides-id nil
   "Google Slides ID for the current buffer.")
 
@@ -139,7 +145,21 @@ If not set, prompt the user and store it."
 When called non-interactively, ID must be provided."
   (interactive (list (deck-slides-current-buffer-id-and-register)))
   (let ((default-directory (expand-file-name "~")))
-    (message "%s" (shell-command-to-string (deck-slides--command-line "apply" id buffer-file-name)))))
+    (message "%s" (shell-command-to-string
+                   (if deck-slides-code-block-to-image-command
+                       (deck-slides--command-line "apply" id buffer-file-name "-c" deck-slides-code-block-to-image-command)
+                     (deck-slides--command-line "apply" id buffer-file-name))))))
+
+;;;###autoload
+(defun deck-slides-apply-watch (id)
+  "Apply all slides change to Google Slides ID.
+When called non-interactively, ID must be provided."
+  (interactive (list (deck-slides-current-buffer-id-and-register)))
+  (let ((default-directory (expand-file-name "~")))
+    (compile
+     (if deck-slides-code-block-to-image-command
+         (deck-slides--command-line "apply" "--watch" id buffer-file-name "-c" deck-slides-code-block-to-image-command)
+       (deck-slides--command-line "apply" "--watch" id buffer-file-name)))))
 
 ;;;###autoload
 (defun deck-slides-apply-only-current-page (id)
