@@ -39,6 +39,10 @@
   "Path to the deck executable."
   :type 'string)
 
+(defcustom deck-slides-cache-file (expand-file-name "deck-slides.eld" user-emacs-directory)
+  "File to cache Google Slides IDs associated with Markdown files."
+  :type '(choice file (const :tag "No cache" nil)))
+
 (defvar-local deck-slides-id nil
   "Google Slides ID for the current buffer.")
 
@@ -55,6 +59,26 @@
   (mapconcat #'shell-quote-argument (cons deck-slides-executable args) " "))
 
 ;; Internal functions
+(defun deck-slides-read-cache ()
+  "Read the association list of file paths and Google Slides IDs from cache."
+  (when (and deck-slides-cache-file (file-exists-p deck-slides-cache-file))
+    (with-temp-buffer
+      (insert-file-contents deck-slides-cache-file)
+      (condition-case nil
+          (read (current-buffer))
+        (end-of-file
+         (warn "Failed to read the projects list file due to unexpected EOF"))))))
+
+(defun deck-slides-save-cache (ids)
+  "Save the association list IDS into cache file `deck-slides-cache-file'."
+  (when deck-slides-cache-file
+    (with-temp-buffer
+      (insert ";;; -*- lisp-data -*-\n")
+      (let ((print-length nil)
+            (print-level nil))
+        (pp ids (current-buffer)))
+      (write-region nil nil deck-slides-cache-file nil 'silent))))
+
 (defconst deck-slides--presentation-url-pattern
   (eval-when-compile
     (rx "https://docs.google.com/presentation/"
@@ -70,13 +94,18 @@
   "Get the Google Slides ID for the current buffer.
 If not set, prompt the user and store it."
   (unless deck-slides-id
-    (let ((new-id (read-string "Input Google Slides presentation ID or URL: ")))
-      (save-match-data
-        (when (string-match deck-slides--presentation-url-pattern new-id)
-          (setq new-id (match-string-no-properties 1 new-id))))
-      (unless (string-match-p deck-slides--presentation-id-pattern new-id)
-        (user-error "Invalid presentation ID"))
-      (setq deck-slides-id new-id)))
+    (let ((stored-ids (deck-slides-read-cache))
+          new-id)
+      (if-let* ((current-id (alist-get buffer-file-name stored-ids nil nil #'equal)))
+          (setq deck-slides-id current-id)
+        (setq new-id (read-string "Input Google Slides presentation ID or URL: "))
+        (save-match-data
+          (when (string-match deck-slides--presentation-url-pattern new-id)
+            (setq new-id (match-string-no-properties 1 new-id))))
+        (unless (string-match-p deck-slides--presentation-id-pattern new-id)
+          (user-error "Invalid presentation ID"))
+        (setq deck-slides-id new-id)
+        (deck-slides-save-cache (cons (cons buffer-file-name new-id) stored-ids)))))
   deck-slides-id)
 
 (defun deck-slides--fetch-ls-layous (id)
