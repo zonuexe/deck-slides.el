@@ -6,7 +6,7 @@
 ;; Keywords: multimedia
 ;; URL: https://github.com/zonuexe/deck-slides.el
 ;; Version: 0.0.1
-;; Package-Requires: ((emacs "30.1"))
+;; Package-Requires: ((emacs "30.1") (yaml "1.2.0"))
 ;; License: GPL-3.0-or-later
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -28,6 +28,7 @@
 
 ;;; Code:
 (require 'xdg)
+(require 'yaml nil t)
 
 (defvar deck-slides-lighter " deck")
 
@@ -63,6 +64,32 @@ See https://github.com/k1LoW/deck?tab=readme-ov-file#code-blocks-to-images."
 (defun deck-slides--command-line (&rest args)
   "Build the command line string for the deck executable with ARGS."
   (mapconcat #'shell-quote-argument (cons deck-slides-executable args) " "))
+
+(defun deck-slides--this-buffer-has-frontmatter ()
+  "Check if the current buffer has YAML frontmatter at the beginning.
+Returns non-nil if the buffer starts with '---' on a line by itself."
+  (save-excursion
+    (save-match-data
+      (save-restriction
+        (widen)
+        (goto-char (point-min))
+        (looking-at-p "---\n")))))
+
+(defun deck-slides--parse-frontmatter ()
+  "Extract YAML frontmatter from the current buffer and parse it.
+Returns the parsed YAML as an S-expression, or nil if no frontmatter is found.
+The frontmatter is the content between the first '---' and the next '---' at the beginning of lines."
+  (when (deck-slides--this-buffer-has-frontmatter)
+    (save-excursion
+      (save-match-data
+        (save-restriction
+          (widen)
+          (goto-char (point-min))
+          (forward-line 1) ; Skip the first "---"
+          (let ((start (point)))
+            (when (re-search-forward "^---$" nil t)
+              (let ((end (match-beginning 0)))
+                (yaml-parse-string (buffer-substring-no-properties start end))))))))))
 
 ;; Internal functions
 (defun deck-slides-read-cache ()
