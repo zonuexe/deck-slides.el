@@ -147,8 +147,8 @@ When called non-interactively, ID must be provided."
   (let ((default-directory (expand-file-name "~")))
     (message "%s" (shell-command-to-string
                    (if deck-slides-code-block-to-image-command
-                       (deck-slides--command-line "apply" id buffer-file-name "-c" deck-slides-code-block-to-image-command)
-                     (deck-slides--command-line "apply" id buffer-file-name))))))
+                       (deck-slides--command-line "apply" buffer-file-name "--presentation-id" id "-c" deck-slides-code-block-to-image-command)
+                     (deck-slides--command-line "apply"buffer-file-name "--presentation-id" id))))))
 
 ;;;###autoload
 (defun deck-slides-apply-watch (id)
@@ -158,8 +158,8 @@ When called non-interactively, ID must be provided."
   (let ((default-directory (expand-file-name "~")))
     (compile
      (if deck-slides-code-block-to-image-command
-         (deck-slides--command-line "apply" "--watch" id buffer-file-name "-c" deck-slides-code-block-to-image-command)
-       (deck-slides--command-line "apply" "--watch" id buffer-file-name)))))
+         (deck-slides--command-line "apply" buffer-file-name "--watch" "--presentation-id" id  "-c" deck-slides-code-block-to-image-command)
+       (deck-slides--command-line "apply" buffer-file-name "--watch" "--presentation-id" id )))))
 
 ;;;###autoload
 (defun deck-slides-apply-only-current-page (id)
