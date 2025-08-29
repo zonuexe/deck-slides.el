@@ -119,24 +119,6 @@ If not set, prompt the user and store it."
   (save-match-data
     (split-string (string-trim-right (shell-command-to-string (deck-slides--command-line "ls-layouts" id))))))
 
-(defun deck-slides--get-current-page ()
-  "Fetch layout names for the given slide ID using the deck command."
-  (save-match-data
-    (save-mark-and-excursion
-      (save-restriction
-        (widen)
-        (when (search-forward (eval-when-compile deck-slides-separator) nil t)
-          (goto-char (match-end 0)))
-        (let ((current-position (point))
-              (buffer-end-position (point-max)))
-          (goto-char (point-min))
-          (named-let loop ((page 0))
-            (if (and (<= (point) current-position)
-                     (not (eq (point) buffer-end-position))
-                     (re-search-forward (eval-when-compile (rx-to-string `(or ,deck-slides-separator buffer-end)))
-                                        nil t))
-                (loop (1+ page))
-              page)))))))
 
 ;; Commands
 ;;;###autoload
@@ -160,17 +142,6 @@ When called non-interactively, ID must be provided."
      (if deck-slides-code-block-to-image-command
          (deck-slides--command-line "apply" buffer-file-name "--watch" "--presentation-id" id  "-c" deck-slides-code-block-to-image-command)
        (deck-slides--command-line "apply" buffer-file-name "--watch" "--presentation-id" id )))))
-
-;;;###autoload
-(defun deck-slides-apply-only-current-page (id)
-  "Apply change of the current page to Google Slides ID.
-The page number is determined by the cursor position.
-When called non-interactively, ID must be provided."
-  (interactive (list (deck-slides-current-buffer-id-and-register)))
-  (let ((default-directory (expand-file-name "~"))
-        (page (number-to-string (deck-slides--get-current-page))))
-    (message "%s" (shell-command-to-string
-                   (deck-slides--command-line "apply" "-p" page id buffer-file-name)))))
 
 ;;;###autoload
 (defun deck-slides-ls-layouts (id &optional force-update)
