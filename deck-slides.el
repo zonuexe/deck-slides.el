@@ -67,7 +67,7 @@ See https://github.com/k1LoW/deck?tab=readme-ov-file#code-blocks-to-images."
 
 (defun deck-slides--this-buffer-has-frontmatter ()
   "Check if the current buffer has YAML frontmatter at the beginning.
-Returns non-nil if the buffer starts with '---' on a line by itself."
+Returns non-nil if the buffer starts with \"---\" on a line by itself."
   (save-excursion
     (save-match-data
       (save-restriction
@@ -75,10 +75,18 @@ Returns non-nil if the buffer starts with '---' on a line by itself."
         (goto-char (point-min))
         (looking-at-p "---\n")))))
 
+(defsubst deck-slides--parse-yaml-string (string)
+  "Parse YAML string STRING and return it as a plist.
+Returns nil if yaml-parse-string is not available.
+The YAML is parsed with object-type 'plist and sequence-type 'list."
+  (when (fboundp 'yaml-parse-string)
+    (yaml-parse-string string :object-type 'plist :sequence-type 'list)))
+
 (defun deck-slides--parse-frontmatter ()
   "Extract YAML frontmatter from the current buffer and parse it.
 Returns the parsed YAML as an S-expression, or nil if no frontmatter is found.
-The frontmatter is the content between the first '---' and the next '---' at the beginning of lines."
+The frontmatter is the content between the first \"---\" and the next \"---\" at
+the beginning of lines."
   (when (deck-slides--this-buffer-has-frontmatter)
     (save-excursion
       (save-match-data
@@ -89,7 +97,7 @@ The frontmatter is the content between the first '---' and the next '---' at the
           (let ((start (point)))
             (when (re-search-forward "^---$" nil t)
               (let ((end (match-beginning 0)))
-                (yaml-parse-string (buffer-substring-no-properties start end))))))))))
+                (deck-slides--parse-yaml-string (buffer-substring-no-properties start end))))))))))
 
 ;; Internal functions
 (defun deck-slides-read-cache ()
