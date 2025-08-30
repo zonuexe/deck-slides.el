@@ -29,6 +29,8 @@
 ;;; Code:
 (require 'xdg)
 (require 'yaml nil t)
+(eval-when-compile
+  (require 'subr-x))
 
 (defvar deck-slides-lighter " deck")
 
@@ -152,8 +154,11 @@ If not set, prompt the user and store it."
 (defun deck-slides--fetch-ls-layous (id)
   "Fetch layout names for the given slide ID using the deck command."
   (save-match-data
-    (split-string (string-trim-right (shell-command-to-string (deck-slides--command-line "ls-layouts" id))))))
-
+    (thread-first
+      (deck-slides--command-line "ls-layouts" "--presentation-id" id)
+      (shell-command-to-string)
+      (string-trim-right)
+      (split-string))))
 
 ;; Commands
 ;;;###autoload
