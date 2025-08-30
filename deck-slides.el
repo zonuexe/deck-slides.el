@@ -139,7 +139,8 @@ If not set, prompt the user and store it."
   (unless deck-slides-id
     (let ((stored-ids (deck-slides-read-cache))
           new-id)
-      (if-let* ((current-id (alist-get buffer-file-name stored-ids nil nil #'equal)))
+      (if-let* ((current-id (or (plist-get (deck-slides--parse-frontmatter) :presentationID)
+                                (alist-get buffer-file-name stored-ids nil nil #'equal))))
           (setq deck-slides-id current-id)
         (setq new-id (read-string "Input Google Slides presentation ID or URL: "))
         (save-match-data
