@@ -202,6 +202,20 @@ When FORCE-UPDATE is non-NIL, the cache is refreshed."
   (interactive)
   (find-file (expand-file-name "deck/credentials.json" (xdg-data-home))))
 
+;;;###autoload
+(defun deck-slides-find-config-files ()
+  "Find deck configuration files."
+  (interactive)
+  (let ((dir (expand-file-name "deck" (xdg-config-home))))
+    (unless (file-directory-p dir)
+      (mkdir dir t))
+    (find-file (expand-file-name "" (xdg-data-home)))))
+
+;;;###autoload
+(defun deck-slides-open-browser (id)
+  "Open Google Slides presentation in browser by ID."
+  (interactive (list (deck-slides-current-buffer-id-and-register)))
+  (browse-url (format "https://docs.google.com/presentation/d/%s/edit" id)))
 
 ;; Minor mode
 ;;;###autoload
