@@ -216,6 +216,12 @@ When FORCE-UPDATE is non-NIL, the cache is refreshed."
   "Open Google Slides presentation in browser by ID."
   (interactive (list (deck-slides-current-buffer-id-and-register)))
   (browse-url (format "https://docs.google.com/presentation/d/%s/edit" id)))
+
+;;;###autoload
+(defun deck-slides-doctor ()
+  "Run `deck doctor' command in a comint buffer to diagnose deck configuration."
+  (interactive)
+  (compile (mapconcat #'shell-quote-argument (list deck-slides-executable "doctor") " ")))
 
 ;; Minor mode
 ;;;###autoload
