@@ -68,7 +68,7 @@ See https://github.com/k1LoW/deck?tab=readme-ov-file#code-blocks-to-images."
   "Cached list of layout names for the current slide ID.")
 
 (eval-and-compile
-  (defconst deck-slides-separator "\n---\n"
+  (defconst deck-slides-separator "\n\n---\n"
     "Separator used between slides in the Markdown file."))
 
 ;; Utility functions
@@ -239,8 +239,9 @@ The layout name is inserted as a JSON comment after the slide separator."
   (unless (looking-at-p "---\n")
     (end-of-line))
   (let* ((separator deck-slides-separator))
-    (when (looking-back "\n\n" 2)
-      (setq separator (string-trim-left separator)))
+    (cond
+     ((looking-back "\n\n" 2) (setq separator (string-trim-left separator)))
+     ((looking-back "\n" 1) (setq separator (concat "\n" (string-trim-left separator)))))
     (when (looking-at-p "\n\n")
       (setq separator (string-trim-right separator)))
     (insert separator)
