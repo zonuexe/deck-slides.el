@@ -24,7 +24,72 @@ Run `M-x deck-slides-ls-layouts` to list the layout names of slides correspondin
 > [!TIP]
 > The results of this command are cached as buffer-local variables. The cache is discarded when you run `C-u M-x deck-slides-ls-layouts` or kill the buffer.
 
+## Commands
+
+### Core Commands
+
+#### `deck-slides-apply`
+Apply all slides changes to Google Slides. When called interactively, prompts for the presentation ID if not already set.
+
+#### `deck-slides-apply-watch`
+Apply slides changes and watch for file modifications. Runs in the `*compilation*` buffer. Use `C-g` to stop watching.
+
+#### `deck-slides-ls-layouts`
+List available layout names for the current presentation. Results are cached by default. Use `C-u` prefix to force refresh.
+
+### Page Management Commands
+
+#### `deck-slides-insert-page`
+Insert a new slide separator (`---`) at the current position. When called interactively, prompts for a layout name to apply to the new page.
+
+#### `deck-slides-set-page-layout`
+Set the layout for the current page. When called interactively, prompts for a layout name from available options.
+
+#### `deck-slides-insert-comment`
+Insert a comment template at the current point with cursor positioned at the cursor marker (`!!`).
+
+### Page Configuration Commands
+
+#### `deck-slides-toggle-freeze-page`
+Toggle the freeze state of the current page. If the page has `{"freeze": true}`, sets it to false. If the page has `{"freeze": false}` or no freeze key, sets it to true.
+
+#### `deck-slides-toggle-ignore-page`
+Toggle the ignore state of the current page. If the page has `{"ignore": true}`, sets it to false. If the page has `{"ignore": false}` or no ignore key, sets it to true.
+
+#### `deck-slides-toggle-skip-page`
+Toggle the skip state of the current page. If the page has `{"skip": true}`, sets it to false. If the page has `{"skip": false}` or no skip key, sets it to true.
+
+### Utility Commands
+
+#### `deck-slides-find-credentials-json`
+Open the deck credentials.json file for editing.
+
+#### `deck-slides-find-config-files`
+Open the deck configuration directory.
+
+#### `deck-slides-open-browser`
+Open the current Google Slides presentation in your default browser.
+
+#### `deck-slides-doctor`
+Run `deck doctor` command in a comint buffer to diagnose deck configuration issues.
+
+### Key Bindings
+
+When `deck-slides-mode` is enabled, the following key bindings are available:
+
+- `C-c RET` - Insert a new page (`deck-slides-insert-page`)
+- `C-c C-c RET` - Insert a new page (`deck-slides-insert-page`)
+- `C-c C-c f` - Toggle freeze state (`deck-slides-toggle-freeze-page`)
+- `C-c C-c i` - Toggle ignore state (`deck-slides-toggle-ignore-page`)
+- `C-c C-c s` - Toggle skip state (`deck-slides-toggle-skip-page`)
+- `C-c C-c ;` - Insert comment template (`deck-slides-insert-comment`)
+
+
 ## Configuration
+
+> [!CAUTION]
+> These Emacs-specific settings will be removed in the next release.
+> They can be set in front matter or in the configuration file.
 
 ### Cache File
 
