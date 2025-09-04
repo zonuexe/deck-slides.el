@@ -80,7 +80,7 @@ Returns non-nil if the buffer starts with \"---\" on a line by itself."
 (defsubst deck-slides--parse-yaml-string (string)
   "Parse YAML string STRING and return it as a plist.
 Returns nil if yaml-parse-string is not available.
-The YAML is parsed with object-type 'plist and sequence-type 'list."
+The YAML is parsed with object-type \\='plist and sequence-type \\='list."
   (when (fboundp 'yaml-parse-string)
     (yaml-parse-string string :object-type 'plist :sequence-type 'list)))
 
