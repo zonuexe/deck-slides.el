@@ -139,49 +139,69 @@ The result is cached in `deck-slides--template-pair-cache'."
   (defconst deck-slides-re-comment-start (rx bol "<!--" (+ (syntax whitespace))))
   (defconst deck-slides-re-comment-end (rx (+ (syntax whitespace)) "-->")))
 
-(defun deck-slides--get-page-config ()
+(defmacro deck-slides--with-page-beginning (body)
+  "Execute BODY with point positioned at the beginning of the current page.
+This macro saves excursion and restriction, widens the buffer,
+moves to the beginning of the current page, then executes BODY."
+  `(save-excursion
+     (save-restriction
+       (widen)
+       (backward-page)
+       ,body)))
+
+(defun deck-slides--get-page-config-with-point ()
   "Get page configuration from current page as a plist.
 Searches for JSON objects in HTML comments between `<!--' and `-->'."
-  (save-excursion
-    (save-match-data
-      (save-restriction
-        (backward-page)
-        (let ((bound (save-excursion
-                       (forward-page)
-                       (point))))
-          (cl-loop
-           while (re-search-forward deck-slides-re-comment-start bound t)
-           thereis
-           (let* ((beg (match-end 0))
-                  (end (save-excursion (when (re-search-forward deck-slides-re-comment-end bound t)
-                                         (match-beginning 0))))
-                  comment-content)
-             (when end
-               (setq comment-content
-                     (string-trim (buffer-substring-no-properties beg end)))
-               (when (and (string-prefix-p "{" comment-content)
-                          (string-suffix-p "}" comment-content))
-                 (condition-case nil
-                     (cl-values
-                      beg end
-                      (json-parse-string comment-content :object-type 'plist))
-                   (error nil)))))))))))
+  (save-match-data
+    (let ((bound (save-excursion
+                   (forward-page)
+                   (point))))
+      (cl-loop
+       while (re-search-forward deck-slides-re-comment-start bound t)
+       thereis
+       (let* ((beg (match-end 0))
+              (end (save-excursion (when (re-search-forward deck-slides-re-comment-end bound t)
+                                     (match-beginning 0))))
+              comment-content)
+         (when end
+           (setq comment-content
+                 (string-trim (buffer-substring-no-properties beg end)))
+           (if (string= comment-content "")
+               (cl-values beg end nil)
+             (when (and (string-prefix-p "{" comment-content)
+                        (string-suffix-p "}" comment-content))
+               (condition-case nil
+                   (cl-values
+                    beg end
+                    (json-parse-string comment-content :object-type 'plist))
+                 (error nil))))))))))
+
+(defsubst deck-slides--get-page-config ()
+  "Get page configuration from the current page as a plist.
+This function moves to the beginning of the current page and searches
+for JSON objects in HTML comments. Returns the parsed JSON as a plist,
+or nil if no valid JSON configuration is found."
+  (nth 2 (deck-slides--with-page-beginning (deck-slides--get-page-config-with-point))))
 
 (defun deck-slides--update-page-config (new-plist &optional del-keys)
   "Update page configuration by modifying the JSON object in HTML comments.
 NEW-PLIST is a plist of key-value pairs to add or update.
 DEL-KEYS is an optional list of keys to remove from the configuration.
 The function modifies the JSON object in place within the HTML comment."
-  (when-let* ((page-config (deck-slides--get-page-config)))
-    (cl-multiple-value-bind (beg end json-value) page-config
-      (save-excursion
-        (goto-char beg)
-        (delete-region beg end)
-        (cl-loop for (key value) on new-plist by #'cddr
-                 do (setf (plist-get json-value key) value))
-        (cl-loop for key in del-keys
-                 do (cl-remf json-value key))
-        (insert (json-encode-plist json-value))))))
+  (deck-slides--with-page-beginning
+   (if-let* ((page-config (deck-slides--get-page-config-with-point)))
+       (cl-multiple-value-bind (beg end json-value) page-config
+         (message "before: %S new-plist: %S" json-value new-plist)
+         (goto-char beg)
+         (delete-region beg end)
+         (cl-loop for (key value) on new-plist by #'cddr
+                  do (setf (plist-get json-value key) value))
+         (cl-loop for key in del-keys
+                  do (cl-remf json-value key))
+         (message "after: %S" json-value)
+         (insert (json-encode-plist json-value)))
+     (deck-slides-insert-comment)
+     (insert (json-encode-plist new-plist)))))
 
 ;; Internal functions
 (defun deck-slides-read-cache ()
