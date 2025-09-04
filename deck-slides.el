@@ -30,6 +30,7 @@
 (require 'xdg)
 (require 'yaml nil t)
 (eval-when-compile
+  (require 'cl-lib)
   (require 'subr-x))
 
 (defvar deck-slides-lighter " deck")
@@ -51,6 +52,14 @@
 See https://github.com/k1LoW/deck?tab=readme-ov-file#code-blocks-to-images."
   :type '(choice string (const :tag "" nil))
   :safe (lambda (v) (or (null v) (stringp v))))
+
+(defcustom deck-slides-cursor-re (eval-when-compile (rx "`!!'"))
+  "A regexp that searches for the position where the cursor moves when inserting."
+  :type 'regexp)
+
+(defcustom deck-slides-comment-template "<!-- `!!' -->\n"
+  "Templete for Markdown comment block."
+  :type 'string)
 
 (defvar-local deck-slides-id nil
   "Google Slides ID for the current buffer.")
@@ -100,6 +109,20 @@ the beginning of lines."
             (when (re-search-forward "^---$" nil t)
               (let ((end (match-beginning 0)))
                 (deck-slides--parse-yaml-string (buffer-substring-no-properties start end))))))))))
+
+(defvar deck-slides--template-pair-cache '())
+
+(defun deck-slides--get-template-pair ()
+  "Return `deck-slides-comment-template' split pair.
+The result is cached in `deck-slides--template-pair-cache'."
+  (or (alist-get deck-slides-comment-template deck-slides--template-pair-cache nil nil #'equal)
+      (let* ((parts (save-match-data (split-string deck-slides-comment-template deck-slides-cursor-re t)))
+             (result (cl-case (length parts)
+                       (1 (list deck-slides-comment-template ""))
+                       (2 parts)
+                       (t (list (car parts) (string-join (cdr parts) deck-slides-cursor-re))))))
+        (push (cons deck-slides-comment-template result) deck-slides--template-pair-cache)
+        result)))
 
 ;; Internal functions
 (defun deck-slides-read-cache ()
@@ -226,6 +249,18 @@ The layout name is inserted as a JSON comment after the slide separator."
       (insert (format "\n<!-- {\"layout\": \"%s\"} -->\n" layout-name)))))
 
 ;;;###autoload
+(defun deck-slides-insert-comment ()
+  "Insert a comment template at point with cursor positioned at the cursor marker.
+The template is split by `deck-slides-cursor-re' and the cursor is positioned
+between the head and tail parts."
+  (interactive)
+  (cl-multiple-value-bind (head tail)
+      (deck-slides--get-template-pair)
+    (insert head)
+    (save-excursion
+      (insert tail))))
+
+;;;###autoload
 (defun deck-slides-find-credentials-json ()
   "Find deck `credentials.json' file."
   (interactive)
@@ -255,7 +290,8 @@ The layout name is inserted as a JSON comment after the slide separator."
 ;; Minor mode
 (defvar-keymap deck-slides-map
   :doc "Keymap for deck-slides-mode."
-  "C-c RET" #'deck-slides-insert-page)
+  "C-c RET" #'deck-slides-insert-page
+  "C-c C-c ;" #'deck-slides-insert-comment)
 
 ;;;###autoload
 (define-minor-mode deck-slides-mode
