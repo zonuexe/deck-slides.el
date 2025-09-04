@@ -29,6 +29,7 @@
 ;;; Code:
 (require 'xdg)
 (require 'yaml nil t)
+(require 'nadvice)
 (eval-when-compile
   (require 'cl-lib)
   (require 'subr-x))
@@ -61,11 +62,20 @@ See https://github.com/k1LoW/deck?tab=readme-ov-file#code-blocks-to-images."
   "Templete for Markdown comment block."
   :type 'string)
 
+(defcustom deck-slides-override-markdown-page-commands t
+  "Whether to override markdown page commands with standard page commands.
+When non-NIL, `markdown-backward-page' and `markdown-forward-page' are
+overridden with `backward-page' and `forward-page' respectively when
+deck-slides-mode is enabled."
+  :type 'boolean)
+
 (defvar-local deck-slides-id nil
   "Google Slides ID for the current buffer.")
 
 (defvar-local deck-slides-layout-names nil
   "Cached list of layout names for the current slide ID.")
+
+(defvar-local deck-slides--last-page-delimiter nil)
 
 (eval-and-compile
   (defconst deck-slides-separator "\n\n---\n"
@@ -297,7 +307,15 @@ between the head and tail parts."
 (define-minor-mode deck-slides-mode
   "Minor mode for interacting with deck CLI.  Enables auto-apply on idle."
   :keymap deck-slides-map
-  :lighter deck-slides-lighter)
+  :lighter deck-slides-lighter
+  (if deck-slides-mode
+      (progn
+        (when deck-slides-override-markdown-page-commands
+          (advice-add 'markdown-backward-page :override #'backward-page)
+          (advice-add 'markdown-forward-page :override #'forward-page)))
+    (when deck-slides-override-markdown-page-commands
+      (advice-remove 'markdown-backward-page #'backward-page)
+      (advice-remove 'markdown-forward-page #'forward-page))))
 
 (provide 'deck-slides)
 ;;; deck-slides.el ends here
