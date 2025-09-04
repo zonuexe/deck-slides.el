@@ -87,46 +87,6 @@ When `deck-slides-mode` is enabled, the following key bindings are available:
 
 ## Configuration
 
-> [!CAUTION]
-> These Emacs-specific settings will be removed in the next release.
-> They can be set in front matter or in the configuration file.
-
-### Cache File
-
-The `deck-slides-cache-file` variable controls where Google Slides IDs associated with Markdown files are cached. By default, it stores the cache in `deck-slides.eld` in your Emacs user directory.
-
-You can customize the cache file location:
-
-```elisp
-(setopt deck-slides-cache-file "~/.config/emacs/deck-slides-cache.eld")
-```
-
-To disable caching entirely, set it to `nil`:
-
-```elisp
-(setopt deck-slides-cache-file nil)
-```
-
-### Code Blocks to Images
-
-You can configure `deck-slides-code-block-to-image-command` to automatically convert code blocks into images when applying slides to Google Slides.
-
-This feature uses the same functionality as the [deck CLI's code blocks to images feature](https://github.com/k1LoW/deck?tab=readme-ov-file#code-blocks-to-images).
-
-Example configuration:
-
-```elisp
-(setopt deck-slides-code-block-to-image-command "...")
-```
-
-This setting can also be saved in a `.dir-locals.el` file for directory-specific configuration.
-
-```elisp
-((gfm-mode . ((deck-slides-code-block-to-image-command . "if [ {{lang}} = \"mermaid\" ]; then mmdc -i - -o output.png --quet; else silicon {{lang == \"\" ? \"-l md\" : \"-l \" + lang}} --background '#fff0' --output output.png; fi; cat output.png"))))
-```
-
-> [!WARNING]
-> This string is expanded as a shell string by [expr-lang](https://expr-lang.org/).  ***Please set it at your own risk.***
 
 ## Copyright
 

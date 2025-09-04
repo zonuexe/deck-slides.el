@@ -45,16 +45,6 @@
   "Path to the deck executable."
   :type 'string)
 
-(defcustom deck-slides-cache-file (expand-file-name "deck-slides.eld" user-emacs-directory)
-  "File to cache Google Slides IDs associated with Markdown files."
-  :type '(choice file (const :tag "No cache" nil)))
-
-(defcustom deck-slides-code-block-to-image-command nil
-  "Command strings and expression language for converting code blocks into images.
-See https://github.com/k1LoW/deck?tab=readme-ov-file#code-blocks-to-images."
-  :type '(choice string (const :tag "" nil))
-  :safe (lambda (v) (or (null v) (stringp v))))
-
 (defcustom deck-slides-cursor-re (eval-when-compile (rx "`!!'"))
   "A regexp that searches for the position where the cursor moves when inserting."
   :type 'regexp)
@@ -204,26 +194,6 @@ The function modifies the JSON object in place within the HTML comment."
      (insert (json-encode-plist new-plist)))))
 
 ;; Internal functions
-(defun deck-slides-read-cache ()
-  "Read the association list of file paths and Google Slides IDs from cache."
-  (when (and deck-slides-cache-file (file-exists-p deck-slides-cache-file))
-    (with-temp-buffer
-      (insert-file-contents deck-slides-cache-file)
-      (condition-case nil
-          (read (current-buffer))
-        (end-of-file
-         (warn "Failed to read the projects list file due to unexpected EOF"))))))
-
-(defun deck-slides-save-cache (ids)
-  "Save the association list IDS into cache file `deck-slides-cache-file'."
-  (when deck-slides-cache-file
-    (with-temp-buffer
-      (insert ";;; -*- lisp-data -*-\n")
-      (let ((print-length nil)
-            (print-level nil))
-        (pp ids (current-buffer)))
-      (write-region nil nil deck-slides-cache-file nil 'silent))))
-
 (defconst deck-slides--presentation-url-pattern
   (eval-when-compile
     (rx "https://docs.google.com/presentation/"
@@ -239,19 +209,15 @@ The function modifies the JSON object in place within the HTML comment."
   "Get the Google Slides ID for the current buffer.
 If not set, prompt the user and store it."
   (unless deck-slides-id
-    (let ((stored-ids (deck-slides-read-cache))
-          new-id)
-      (if-let* ((current-id (or (plist-get (deck-slides--parse-frontmatter) :presentationID)
-                                (alist-get buffer-file-name stored-ids nil nil #'equal))))
-          (setq deck-slides-id current-id)
-        (setq new-id (read-string "Input Google Slides presentation ID or URL: "))
+    (if-let* ((current-id (plist-get (deck-slides--parse-frontmatter) :presentationID)))
+        (setq deck-slides-id current-id)
+      (let ((new-id (read-string "Input Google Slides presentation ID or URL: ")))
         (save-match-data
           (when (string-match deck-slides--presentation-url-pattern new-id)
             (setq new-id (match-string-no-properties 1 new-id))))
         (unless (string-match-p deck-slides--presentation-id-pattern new-id)
           (user-error "Invalid presentation ID"))
-        (setq deck-slides-id new-id)
-        (deck-slides-save-cache (cons (cons buffer-file-name new-id) stored-ids)))))
+        (setq deck-slides-id new-id))))
   deck-slides-id)
 
 (defun deck-slides--fetch-ls-layous (id)
@@ -280,9 +246,7 @@ When called non-interactively, ID must be provided."
   (interactive (list (deck-slides-current-buffer-id-and-register)))
   (let ((default-directory (expand-file-name "~")))
     (message "%s" (shell-command-to-string
-                   (if deck-slides-code-block-to-image-command
-                       (deck-slides--command-line "apply" buffer-file-name "--presentation-id" id "-c" deck-slides-code-block-to-image-command)
-                     (deck-slides--command-line "apply"buffer-file-name "--presentation-id" id))))))
+                   (deck-slides--command-line "apply"buffer-file-name "--presentation-id" id)))))
 
 ;;;###autoload
 (defun deck-slides-apply-watch (id)
@@ -290,10 +254,7 @@ When called non-interactively, ID must be provided."
 When called non-interactively, ID must be provided."
   (interactive (list (deck-slides-current-buffer-id-and-register)))
   (let ((default-directory (expand-file-name "~")))
-    (compile
-     (if deck-slides-code-block-to-image-command
-         (deck-slides--command-line "apply" buffer-file-name "--watch" "--presentation-id" id  "-c" deck-slides-code-block-to-image-command)
-       (deck-slides--command-line "apply" buffer-file-name "--watch" "--presentation-id" id )))))
+    (compile (deck-slides--command-line "apply" buffer-file-name "--watch" "--presentation-id" id))))
 
 ;;;###autoload
 (defun deck-slides-ls-layouts (id &optional force-update)
