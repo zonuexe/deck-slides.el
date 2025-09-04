@@ -310,9 +310,14 @@ between the head and tail parts."
   :lighter deck-slides-lighter
   (if deck-slides-mode
       (progn
+        (setq-local deck-slides--last-page-delimiter page-delimiter)
+        (setq-local page-delimiter deck-slides-separator)
         (when deck-slides-override-markdown-page-commands
           (advice-add 'markdown-backward-page :override #'backward-page)
           (advice-add 'markdown-forward-page :override #'forward-page)))
+    (when deck-slides--last-page-delimiter
+      (setq-local page-delimiter deck-slides--last-page-delimiter)
+      (setq-local deck-slides--last-page-delimiter nil))
     (when deck-slides-override-markdown-page-commands
       (advice-remove 'markdown-backward-page #'backward-page)
       (advice-remove 'markdown-forward-page #'forward-page))))
