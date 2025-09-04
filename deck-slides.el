@@ -340,6 +340,39 @@ between the head and tail parts."
       (insert tail))))
 
 ;;;###autoload
+(defun deck-slides-toggle-freeze-page ()
+  "Toggle the freeze state of the current page.
+If the page has `{\"freeze\": true}', sets it to false.
+If the page has `{\"freeze\": false}' or no freeze key, sets it to true."
+  (interactive)
+  (let* ((page-config (deck-slides--get-page-config))
+         (current-freeze (plist-get page-config :freeze))
+         (new-freeze (if (eq current-freeze t) :false t)))
+    (deck-slides--update-page-config (list :freeze new-freeze))))
+
+;;;###autoload
+(defun deck-slides-toggle-ignore-page ()
+  "Toggle the ignore state of the current page.
+If the page has `{\"ignore\": true}', sets it to false.
+If the page has `{\"ignore\": false}' or no ignore key, sets it to true."
+  (interactive)
+  (let* ((page-config (deck-slides--get-page-config))
+         (current-ignore (plist-get page-config :ignore))
+         (new-ignore (if (eq current-ignore t) :false t)))
+    (deck-slides--update-page-config (list :ignore new-ignore))))
+
+;;;###autoload
+(defun deck-slides-toggle-skip-page ()
+  "Toggle the skip state of the current page.
+If the page has `{\"skip\": true}', sets it to false.
+If the page has `{\"skip\": false}' or no skip key, sets it to true."
+  (interactive)
+  (let* ((page-config (deck-slides--get-page-config))
+         (current-skip (plist-get page-config :skip))
+         (new-skip (if (eq current-skip t) :false t)))
+    (deck-slides--update-page-config (list :skip new-skip))))
+
+;;;###autoload
 (defun deck-slides-find-credentials-json ()
   "Find deck `credentials.json' file."
   (interactive)
@@ -370,6 +403,10 @@ between the head and tail parts."
 (defvar-keymap deck-slides-map
   :doc "Keymap for deck-slides-mode."
   "C-c RET" #'deck-slides-insert-page
+  "C-c C-c RET" #'deck-slides-insert-page
+  "C-c C-c f" #'deck-slides-toggle-freeze-page
+  "C-c C-c i" #'deck-slides-toggle-ignore-page
+  "C-c C-c s" #'deck-slides-toggle-skip-page
   "C-c C-c ;" #'deck-slides-insert-comment)
 
 ;;;###autoload
