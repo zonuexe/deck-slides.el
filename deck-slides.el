@@ -306,6 +306,16 @@ When FORCE-UPDATE is non-NIL, the cache is refreshed."
   (message "layout-names: %S" (deck-slides-layout-list id force-update)))
 
 ;;;###autoload
+(defun deck-slides-set-page-layout (layout-name)
+  "Set the LAYOUT-NAME for the current page.
+When called interactively, prompts for the layout name from available options.
+The layout name is set as a JSON comment in the page configuration."
+  (interactive (let* ((id (deck-slides-current-buffer-id-and-register))
+                      (layout-names (deck-slides-layout-list id)))
+                 (list (when layout-names (completing-read "Choose layout name: " layout-names)))))
+  (deck-slides--update-page-config (list :layout layout-name)))
+
+;;;###autoload
 (defun deck-slides-insert-page (layout-name)
   "Insert a slide separator with the specified LAYOUT-NAME.
 When called interactively, prompts for the layout name from available options.
@@ -325,7 +335,8 @@ The layout name is inserted as a JSON comment after the slide separator."
       (setq separator (string-trim-right separator)))
     (insert separator)
     (when layout-name
-      (insert (format "\n<!-- {\"layout\": \"%s\"} -->\n" layout-name)))))
+      (insert "\n")
+      (deck-slides-set-page-layout layout-name))))
 
 ;;;###autoload
 (defun deck-slides-insert-comment ()
