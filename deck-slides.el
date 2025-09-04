@@ -167,6 +167,22 @@ Searches for JSON objects in HTML comments between `<!--' and `-->'."
                       (json-parse-string comment-content :object-type 'plist))
                    (error nil)))))))))))
 
+(defun deck-slides--update-page-config (new-plist &optional del-keys)
+  "Update page configuration by modifying the JSON object in HTML comments.
+NEW-PLIST is a plist of key-value pairs to add or update.
+DEL-KEYS is an optional list of keys to remove from the configuration.
+The function modifies the JSON object in place within the HTML comment."
+  (when-let* ((page-config (deck-slides--get-page-config)))
+    (cl-multiple-value-bind (beg end json-value) page-config
+      (save-excursion
+        (goto-char beg)
+        (delete-region beg end)
+        (cl-loop for (key value) on new-plist by #'cddr
+                 do (setf (plist-get json-value key) value))
+        (cl-loop for key in del-keys
+                 do (cl-remf json-value key))
+        (insert (json-encode-plist json-value))))))
+
 ;; Internal functions
 (defun deck-slides-read-cache ()
   "Read the association list of file paths and Google Slides IDs from cache."
