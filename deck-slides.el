@@ -28,6 +28,7 @@
 
 ;;; Code:
 (require 'xdg)
+(require 'json)
 (require 'yaml nil t)
 (require 'nadvice)
 (eval-when-compile
@@ -133,6 +134,38 @@ The result is cached in `deck-slides--template-pair-cache'."
                        (t (list (car parts) (string-join (cdr parts) deck-slides-cursor-re))))))
         (push (cons deck-slides-comment-template result) deck-slides--template-pair-cache)
         result)))
+
+(eval-and-compile
+  (defconst deck-slides-re-comment-start (rx bol "<!--" (+ (syntax whitespace))))
+  (defconst deck-slides-re-comment-end (rx (+ (syntax whitespace)) "-->")))
+
+(defun deck-slides--get-page-config ()
+  "Get page configuration from current page as a plist.
+Searches for JSON objects in HTML comments between `<!--' and `-->'."
+  (save-excursion
+    (save-match-data
+      (save-restriction
+        (backward-page)
+        (let ((bound (save-excursion
+                       (forward-page)
+                       (point))))
+          (cl-loop
+           while (re-search-forward deck-slides-re-comment-start bound t)
+           thereis
+           (let* ((beg (match-end 0))
+                  (end (save-excursion (when (re-search-forward deck-slides-re-comment-end bound t)
+                                         (match-beginning 0))))
+                  comment-content)
+             (when end
+               (setq comment-content
+                     (string-trim (buffer-substring-no-properties beg end)))
+               (when (and (string-prefix-p "{" comment-content)
+                          (string-suffix-p "}" comment-content))
+                 (condition-case nil
+                     (cl-values
+                      beg end
+                      (json-parse-string comment-content :object-type 'plist))
+                   (error nil)))))))))))
 
 ;; Internal functions
 (defun deck-slides-read-cache ()
