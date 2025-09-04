@@ -235,7 +235,6 @@ The layout name is inserted as a JSON comment after the slide separator."
                       (layout-names (unless (eq 1 (prefix-numeric-value current-prefix-arg))
                                       (deck-slides-layout-list id))))
                  (list (when layout-names (completing-read "Choose layout name: " layout-names)))))
-  (message "deck-slides %S -> %S" current-prefix-arg (prefix-numeric-value current-prefix-arg))
   (beginning-of-line)
   (unless (looking-at-p "---\n")
     (end-of-line))
