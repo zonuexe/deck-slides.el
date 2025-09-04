@@ -160,6 +160,15 @@ If not set, prompt the user and store it."
       (shell-command-to-string)
       (string-trim-right)
       (split-string))))
+
+(defun deck-slides-layout-list (id &optional force-update)
+  "Return layout names by slide ID.
+
+`ls-layouts' results are cached by default.
+When FORCE-UPDATE is non-NIL, the cache is refreshed."
+  (when (or force-update (null deck-slides-layout-names))
+    (setq deck-slides-layout-names (deck-slides--fetch-ls-layous id)))
+  deck-slides-layout-names)
 
 ;; Commands
 ;;;###autoload
@@ -192,9 +201,29 @@ When called non-interactively, ID must be provided."
 When FORCE-UPDATE is non-NIL, the cache is refreshed."
   (interactive (list (deck-slides-current-buffer-id-and-register)
                      (not (null current-prefix-arg))))
-  (when (or force-update (null deck-slides-layout-names))
-    (setq deck-slides-layout-names (deck-slides--fetch-ls-layous id)))
-  (message "layout-names: %S" deck-slides-layout-names))
+  (message "layout-names: %S" (deck-slides-layout-list id force-update)))
+
+;;;###autoload
+(defun deck-slides-insert-page (layout-name)
+  "Insert a slide separator with the specified LAYOUT-NAME.
+When called interactively, prompts for the layout name from available options.
+The layout name is inserted as a JSON comment after the slide separator."
+  (interactive (let* ((id (deck-slides-current-buffer-id-and-register))
+                      (layout-names (unless (eq 1 (prefix-numeric-value current-prefix-arg))
+                                      (deck-slides-layout-list id))))
+                 (list (when layout-names (completing-read "Choose layout name: " layout-names)))))
+  (message "deck-slides %S -> %S" current-prefix-arg (prefix-numeric-value current-prefix-arg))
+  (beginning-of-line)
+  (unless (looking-at-p "---\n")
+    (end-of-line))
+  (let* ((separator deck-slides-separator))
+    (when (looking-back "\n\n" 2)
+      (setq separator (string-trim-left separator)))
+    (when (looking-at-p "\n\n")
+      (setq separator (string-trim-right separator)))
+    (insert separator)
+    (when layout-name
+      (insert (format "\n<!-- {\"layout\": \"%s\"} -->\n" layout-name)))))
 
 ;;;###autoload
 (defun deck-slides-find-credentials-json ()
@@ -224,9 +253,14 @@ When FORCE-UPDATE is non-NIL, the cache is refreshed."
   (compile (mapconcat #'shell-quote-argument (list deck-slides-executable "doctor") " ")))
 
 ;; Minor mode
+(defvar-keymap deck-slides-map
+  :doc "Keymap for deck-slides-mode."
+  "C-c RET" #'deck-slides-insert-page)
+
 ;;;###autoload
 (define-minor-mode deck-slides-mode
   "Minor mode for interacting with deck CLI.  Enables auto-apply on idle."
+  :keymap deck-slides-map
   :lighter deck-slides-lighter)
 
 (provide 'deck-slides)
