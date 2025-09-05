@@ -25,14 +25,14 @@ All notable changes of the `deck-slides.el` are documented in this file using th
    * `deck-slides-toggle-skip-page`
    * `deck-slides-set-page-layout`
  * Add `deck-slides-override-markdown-page-commands` custom variable.
- * Add `deck-slides-override-markdown-page-commands` custom variable.
 
 ### Changed
 
  * Follow changes to the `--presentation-id` argument. ([k1LoW/deck#189])
  * Supports reading configuration from front matter YAML.
- * [deck-slides-mode] the `markdown-(backward|forward)-page` command is replaced with the `(backward|forward)-page` command.
+ * **[deck-slides-mode]** the `markdown-(backward|forward)-page` command is replaced with the `(backward|forward)-page` command.
    * Set `deck-slides-override-markdown-page-commands` to `NIL` to opt out.
+ * **[deck-slides-mode]**  Set `deck-slides--last-page-delimiter` as `page-delimiter`
 
 ### Removed
 
