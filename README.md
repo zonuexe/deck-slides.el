@@ -42,6 +42,9 @@ List available layout names for the current presentation. Results are cached by 
 #### `deck-slides-insert-page`
 Insert a new slide separator (`---`) at the current position. When called interactively, prompts for a layout name to apply to the new page.
 
+#### `M-x deck-slides-duplicate-page`
+Duplicate the current page with its content.
+
 #### `deck-slides-set-page-layout`
 Set the layout for the current page. When called interactively, prompts for a layout name from available options.
 
