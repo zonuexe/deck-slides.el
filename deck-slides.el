@@ -257,6 +257,26 @@ When called non-interactively, ID must be provided."
     (compile (deck-slides--command-line "apply" buffer-file-name "--watch" "--presentation-id" id))))
 
 ;;;###autoload
+(defun deck-slides-new (file base title)
+  "Create a new presentation using the `deck' command.
+FILE is the path to the new Markdown file for the presentation.
+BASE is an optional base presentation ID to copy from.
+TITLE is the title for the new presentation.
+When called interactively, prompts for file path, base ID, and title."
+  (interactive (list (expand-file-name
+                      (read-file-name "Select new Markdown file for presentation: "
+                                      default-directory nil nil))
+                     (unless (eq 1 (prefix-numeric-value current-prefix-arg))
+                       (read-string "Enter base presentation ID: "))
+                     (read-string "Enter presentation title: ")))
+  (let* ((args (append (list file)
+                       (when base
+                         (list "--base" base))
+                       (unless (member title '(nil ""))
+                         (list "--title" title)))))
+    (compile (apply #'deck-slides--command-line "new" (delete #'null args)))))
+
+;;;###autoload
 (defun deck-slides-ls-layouts (id &optional force-update)
   "Show layout names by slide ID.
 
