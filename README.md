@@ -2,6 +2,18 @@
 
 Emacs integration of [k1LoW/deck] command.
 
+## Install
+
+Evaluating the following Lisp code will install the latest package:
+
+```elisp
+(package-vc-install
+'(deck-slides :url "https://github.com/zonuexe/deck-slides.el.git"
+              :main-file "deck-slides.el"))
+```
+
+As a developer, I have only checked it on Emacs 30.2, but it may work on earlier versions, so if you are interested, please send Pull Requests.
+
 ## Usage
 
 ### Edit Credentials File
