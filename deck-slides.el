@@ -300,6 +300,23 @@ The layout name is inserted as a JSON comment after the slide separator."
       (deck-slides-set-page-layout layout-name))))
 
 ;;;###autoload
+(defun deck-slides-duplicate-page ()
+  "Duplicate the current page with its content.
+Creates a copy of the current page by copying all content from the current
+page separator to the next page separator (or end of buffer).
+The duplicated content is inserted after the current page."
+  (interactive)
+  (unless (or (looking-back deck-slides-separator 3)
+              (save-excursion
+                (beginning-of-line)
+                (looking-at-p "---\n")))
+    (backward-page))
+  (let* ((beg (point)))
+    (forward-page)
+    (save-excursion
+      (insert (buffer-substring beg (point))))))
+
+;;;###autoload
 (defun deck-slides-insert-comment ()
   "Insert a comment template at point with cursor positioned at the cursor marker.
 The template is split by `deck-slides-cursor-re' and the cursor is positioned
@@ -376,6 +393,7 @@ If the page has `{\"skip\": false}' or no skip key, sets it to true."
   :doc "Keymap for deck-slides-mode."
   "C-c RET" #'deck-slides-insert-page
   "C-c C-c RET" #'deck-slides-insert-page
+  "C-c C-c d" #'deck-slides-duplicate-page
   "C-c C-c f" #'deck-slides-toggle-freeze-page
   "C-c C-c i" #'deck-slides-toggle-ignore-page
   "C-c C-c s" #'deck-slides-toggle-skip-page

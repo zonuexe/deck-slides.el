@@ -2,9 +2,13 @@
 
 All notable changes of the `deck-slides.el` are documented in this file using the [Keep a Changelog](https://keepachangelog.com/) principles.
 
-<!--
 ## Unreleased
 
+### Added
+
+ * Add `deck-slides-duplicate-page` command.
+
+<!--
 ### Changed
 -->
 
