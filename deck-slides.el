@@ -382,6 +382,47 @@ If the page has `{\"skip\": false}' or no skip key, sets it to true."
     (deck-slides--update-page-config (list :skip new-skip))))
 
 ;;;###autoload
+(defun deck-slides-move-page-up ()
+  "Move the current page up by swapping with the previous page."
+  (interactive)
+  (let ((current-line-num (line-number-at-pos))
+        relative-line-num)
+    (when (looking-back deck-slides-separator 1)
+      (forward-line 1))
+    (deck-slides--with-page-beginning
+     (let* ((current-beg (point))
+            (current-end (save-excursion (forward-page) (point)))
+            (current-content (buffer-substring-no-properties current-beg current-end)))
+       (setq relative-line-num (- current-line-num (line-number-at-pos)))
+       (goto-char current-beg)
+       (delete-region current-beg current-end)
+       (backward-page)
+       (insert current-content)))
+    (backward-page)
+    (backward-page)
+    (forward-line relative-line-num)))
+
+;;;###autoload
+(defun deck-slides-move-page-down ()
+  "Move the current page down by swapping with the next page."
+  (interactive)
+  (let ((current-line-num (line-number-at-pos))
+        relative-line-num)
+    (when (looking-back deck-slides-separator 1)
+      (forward-line 1))
+    (deck-slides--with-page-beginning
+     (let* ((current-beg (point))
+            (current-end (save-excursion (forward-page) (point)))
+            (current-content (buffer-substring-no-properties current-beg current-end)))
+       (setq relative-line-num (- current-line-num (line-number-at-pos)))
+       (goto-char current-end)
+       (forward-page)
+       (delete-region current-beg current-end)
+       (insert current-content)))
+    (forward-page)
+    (forward-line relative-line-num)))
+
+;;;###autoload
 (defun deck-slides-find-credentials-json ()
   "Find deck `credentials.json' file."
   (interactive)
@@ -433,6 +474,10 @@ If the page has `{\"skip\": false}' or no skip key, sets it to true."
   "C-c C-c f" #'deck-slides-toggle-freeze-page
   "C-c C-c i" #'deck-slides-toggle-ignore-page
   "C-c C-c s" #'deck-slides-toggle-skip-page
+  "C-c C-c C-v" #'deck-slides-move-page-down
+  "C-c C-c M-v" #'deck-slides-move-page-up
+  "C-c C-c <down>" #'deck-slides-move-page-down
+  "C-c C-c <up>" #'deck-slides-move-page-up
   "C-c C-c ;" #'deck-slides-insert-comment)
 
 ;;;###autoload
