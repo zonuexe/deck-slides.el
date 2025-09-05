@@ -388,6 +388,22 @@ If the page has `{\"skip\": false}' or no skip key, sets it to true."
   (interactive)
   (compile (mapconcat #'shell-quote-argument (list deck-slides-executable "doctor") " ")))
 
+;; Helper functions for advices
+;;;###autoload
+(defun deck-slides-auto-activate-mode ()
+  "Auto-activate deck-slides-mode for files with presentationID in frontmatter."
+  (when (and (derived-mode-p 'markdown-mode)
+             (save-excursion
+               (goto-char (point-min))
+               (looking-at-p "---\n.*presentationID:")))
+    (deck-slides-mode)))
+
+;;;###autoload
+(defun deck-slides-open-browser-current-buffer ()
+  "Auto-open browser before starting watch mode."
+  (when (eq this-command 'deck-slides-apply-watch)
+    (deck-slides-open-browser (deck-slides-current-buffer-id-and-register))))
+
 ;; Minor mode
 (defvar-keymap deck-slides-map
   :doc "Keymap for deck-slides-mode."

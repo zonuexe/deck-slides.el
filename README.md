@@ -87,9 +87,38 @@ When `deck-slides-mode` is enabled, the following key bindings are available:
 - `C-c C-c s` - Toggle skip state (`deck-slides-toggle-skip-page`)
 - `C-c C-c ;` - Insert comment template (`deck-slides-insert-comment`)
 
+## 💡Tips
 
-## Configuration
+### Auto-activate deck-slides-mode
 
+You can automatically activate `deck-slides-mode` when opening Markdown files that have a presentation ID in their frontmatter.
+
+Add this advice to your Emacs configuration:
+
+```elisp
+(with-eval-after-load 'markdown-mode
+  (advice-add 'markdown-mode :after #'deck-slides-auto-activate-mode))
+```
+
+This will automatically activate `deck-slides-mode` for any Markdown file that starts with:
+
+```yaml
+---
+presentationID:
+```
+
+### Auto-open browser before watch mode
+
+You can automatically open the Google Slides presentation in your browser when starting watch mode.
+
+Add this advice to your Emacs configuration:
+
+```elisp
+(with-eval-after-load 'deck-slides
+  (advice-add 'deck-slides-apply-watch :before #'deck-slides-open-browser-current-buffer))
+```
+
+This will automatically open the presentation in your browser whenever you start `deck-slides-apply-watch`, making it easier to see the changes in real-time.
 
 ## Copyright
 
