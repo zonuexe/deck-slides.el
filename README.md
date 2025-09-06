@@ -127,7 +127,7 @@ Add this advice to your Emacs configuration:
 
 ```elisp
 (with-eval-after-load 'deck-slides
-  (advice-add 'deck-slides-apply-watch :before #'deck-slides-open-browser-current-buffer))
+  (advice-add 'deck-slides-apply-watch :before #'deck-slides-open-browser))
 ```
 
 This will automatically open the presentation in your browser whenever you start `deck-slides-apply-watch`, making it easier to see the changes in real-time.

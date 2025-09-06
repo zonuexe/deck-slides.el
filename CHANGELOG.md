@@ -11,7 +11,6 @@ All notable changes of the `deck-slides.el` are documented in this file using th
  * Add `deck-slides-move-page-up` and `deck-slides-move-page-down` command.
  * Add helper functions for advices:
    * `deck-slides-auto-activate-mode` to detect deck files from markdown-mode and enable `deck-slides-mode`.
-   * `deck-slides-open-browser-current-buffer` to auto-browser opening.
  * **[README]** Add **💡Tips** section with auto-activation and auto-browser opening configurations.
 
 <!--

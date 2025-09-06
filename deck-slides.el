@@ -438,10 +438,14 @@ If the page has `{\"skip\": false}' or no skip key, sets it to true."
     (find-file (expand-file-name "" (xdg-data-home)))))
 
 ;;;###autoload
-(defun deck-slides-open-browser (id)
+(defun deck-slides-open-browser (&optional id)
   "Open Google Slides presentation in browser by ID."
-  (interactive (list (deck-slides-current-buffer-id-and-register)))
-  (browse-url (format "https://docs.google.com/presentation/d/%s/edit" id)))
+  (interactive)
+  (let ((args (append (list deck-slides-executable "open")
+                      (if id
+                          (list "--presentation-id" id)
+                        (list buffer-file-name)))))
+    (message "%s" (shell-command-to-string (mapconcat #'shell-quote-argument args " ")))))
 
 ;;;###autoload
 (defun deck-slides-doctor ()
@@ -458,12 +462,6 @@ If the page has `{\"skip\": false}' or no skip key, sets it to true."
                (goto-char (point-min))
                (looking-at-p "---\n.*presentationID:")))
     (deck-slides-mode)))
-
-;;;###autoload
-(defun deck-slides-open-browser-current-buffer ()
-  "Auto-open browser before starting watch mode."
-  (when (eq this-command 'deck-slides-apply-watch)
-    (deck-slides-open-browser (deck-slides-current-buffer-id-and-register))))
 
 ;; Minor mode
 (defvar-keymap deck-slides-map
