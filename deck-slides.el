@@ -437,7 +437,7 @@ If the page has `{\"skip\": false}' or no skip key, sets it to true."
   (let ((dir (expand-file-name "deck" (xdg-config-home))))
     (unless (file-directory-p dir)
       (mkdir dir t))
-    (find-file (expand-file-name "" (xdg-data-home)))))
+    (read-file-name "Find deck-config-file: " (expand-file-name "./" dir) "config.yml")))
 
 ;;;###autoload
 (defun deck-slides-open-browser (&optional id)
