@@ -273,8 +273,10 @@ When called interactively, prompts for file path, base ID, and title."
                        (when base
                          (list "--base" base))
                        (unless (member title '(nil ""))
-                         (list "--title" title)))))
-    (compile (apply #'deck-slides--command-line "new" (delete #'null args)))))
+                         (list "--title" title))))
+         (output (shell-command-to-string (apply #'deck-slides--command-line "new" (delete #'null args)))))
+    (find-file file)
+    (message "%s" output)))
 
 ;;;###autoload
 (defun deck-slides-ls-layouts (id &optional force-update)
