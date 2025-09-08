@@ -428,16 +428,19 @@ If the page has `{\"skip\": false}' or no skip key, sets it to true."
 (defun deck-slides-find-credentials-json ()
   "Find deck `credentials.json' file."
   (interactive)
-  (find-file (expand-file-name "deck/credentials.json" (xdg-data-home))))
+  (let* ((dir (expand-file-name "deck" (xdg-data-home))))
+    (unless (file-directory-p dir)
+      (mkdir dir t))
+    (find-file "credentials.json" dir)))
 
 ;;;###autoload
 (defun deck-slides-find-config-files ()
   "Find deck configuration files."
   (interactive)
-  (let ((dir (expand-file-name "deck" (xdg-config-home))))
+  (let* ((dir (expand-file-name "deck" (xdg-config-home))))
     (unless (file-directory-p dir)
       (mkdir dir t))
-    (read-file-name "Find deck-config-file: " (expand-file-name "./" dir) "config.yml")))
+    (find-file (read-file-name "Find deck-config-file: " (expand-file-name "./" dir) '("config.yml")))))
 
 ;;;###autoload
 (defun deck-slides-open-browser (&optional id)
