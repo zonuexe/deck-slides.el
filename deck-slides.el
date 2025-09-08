@@ -276,6 +276,7 @@ When called interactively, prompts for file path, base ID, and title."
                          (list "--title" title))))
          (output (shell-command-to-string (apply #'deck-slides--command-line "new" (delete #'null args)))))
     (find-file file)
+    (deck-slides-mode +1)
     (message "%s" output)))
 
 ;;;###autoload
