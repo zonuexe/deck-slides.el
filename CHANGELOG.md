@@ -20,6 +20,7 @@ All notable changes of the `deck-slides.el` are documented in this file using th
 ## Fixed
 
  * Fix `deck-slides-find-config-files` command.
+ * Fix an issue where the toggle commands ware writing `string("false")` instead of `bool(false)`.
 
 <!--
 ### Changed

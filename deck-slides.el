@@ -359,7 +359,7 @@ If the page has `{\"freeze\": false}' or no freeze key, sets it to true."
   (interactive)
   (let* ((page-config (deck-slides--get-page-config))
          (current-freeze (plist-get page-config :freeze))
-         (new-freeze (if (eq current-freeze t) :false t)))
+         (new-freeze (if (eq current-freeze t) json-false t)))
     (deck-slides--update-page-config (list :freeze new-freeze))))
 
 ;;;###autoload
@@ -370,7 +370,7 @@ If the page has `{\"ignore\": false}' or no ignore key, sets it to true."
   (interactive)
   (let* ((page-config (deck-slides--get-page-config))
          (current-ignore (plist-get page-config :ignore))
-         (new-ignore (if (eq current-ignore t) :false t)))
+         (new-ignore (if (eq current-ignore t) json-false t)))
     (deck-slides--update-page-config (list :ignore new-ignore))))
 
 ;;;###autoload
@@ -381,7 +381,7 @@ If the page has `{\"skip\": false}' or no skip key, sets it to true."
   (interactive)
   (let* ((page-config (deck-slides--get-page-config))
          (current-skip (plist-get page-config :skip))
-         (new-skip (if (eq current-skip t) :false t)))
+         (new-skip (if (eq current-skip t) json-false t)))
     (deck-slides--update-page-config (list :skip new-skip))))
 
 ;;;###autoload
