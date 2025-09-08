@@ -169,7 +169,7 @@ Searches for JSON objects in HTML comments between `<!--' and `-->'."
 (defsubst deck-slides--get-page-config ()
   "Get page configuration from the current page as a plist.
 This function moves to the beginning of the current page and searches
-for JSON objects in HTML comments. Returns the parsed JSON as a plist,
+for JSON objects in HTML comments.  Returns the parsed JSON as a plist,
 or nil if no valid JSON configuration is found."
   (nth 2 (deck-slides--with-page-beginning (deck-slides--get-page-config-with-point))))
 
