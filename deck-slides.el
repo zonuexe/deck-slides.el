@@ -431,7 +431,7 @@ If the page has `{\"skip\": false}' or no skip key, sets it to true."
   (let* ((dir (expand-file-name "deck" (xdg-data-home))))
     (unless (file-directory-p dir)
       (mkdir dir t))
-    (find-file "credentials.json" dir)))
+    (find-file (expand-file-name "credentials.json" dir))))
 
 ;;;###autoload
 (defun deck-slides-find-config-files ()
