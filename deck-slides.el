@@ -474,9 +474,11 @@ If the page has `{\"skip\": false}' or no skip key, sets it to true."
   :doc "Keymap for deck-slides-mode."
   "C-c RET" #'deck-slides-insert-page
   "C-c C-c RET" #'deck-slides-insert-page
+  "C-c C-c L" #'deck-slides-open-browser
   "C-c C-c d" #'deck-slides-duplicate-page
   "C-c C-c f" #'deck-slides-toggle-freeze-page
   "C-c C-c i" #'deck-slides-toggle-ignore-page
+  "C-c C-c l" #'deck-slides-set-page-layout
   "C-c C-c s" #'deck-slides-toggle-skip-page
   "C-c C-c C-v" #'deck-slides-move-page-down
   "C-c C-c M-v" #'deck-slides-move-page-up
