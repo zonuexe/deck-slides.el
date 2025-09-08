@@ -2,7 +2,9 @@
 
 All notable changes of the `deck-slides.el` are documented in this file using the [Keep a Changelog](https://keepachangelog.com/) principles.
 
-## Unreleased
+<!-- ## Unreleased -->
+
+## [0.1.1] - 2025-09-09
 
 ### Added
 

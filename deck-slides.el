@@ -5,7 +5,7 @@
 ;; Author: USAMI Kenta <tadsan@zonu.me>
 ;; Keywords: multimedia
 ;; URL: https://github.com/zonuexe/deck-slides.el
-;; Version: 0.1.0
+;; Version: 0.1.1
 ;; Package-Requires: ((emacs "30.1") (yaml "1.2.0"))
 ;; License: GPL-3.0-or-later
 

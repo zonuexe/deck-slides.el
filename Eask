@@ -1,5 +1,5 @@
 (package "deck-slides"
-         "0.1.0"
+         "0.1.1"
          "Creating deck using Markdown and Google Slides")
 
 (website-url "https://github.com/zonuexe/deck-slides.el")
