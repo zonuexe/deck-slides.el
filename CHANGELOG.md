@@ -13,6 +13,10 @@ All notable changes of the `deck-slides.el` are documented in this file using th
    * `deck-slides-auto-activate-mode` to detect deck files from markdown-mode and enable `deck-slides-mode`.
  * **[README]** Add **💡Tips** section with auto-activation and auto-browser opening configurations.
 
+## Changed
+
+ * Improve `deck-slides-find-credentials-json` command.
+
 ## Fixed
 
  * Fix `deck-slides-find-config-files` command.
